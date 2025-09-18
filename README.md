@@ -11,11 +11,11 @@ A comprehensive Julia package for stellarator fusion reactor physics analysis, f
 - **Boozer Coordinates**: Advanced coordinate system for stellarator analysis
 - **Magnetic Surface Analysis**: Calculation of magnetic surfaces and safety factors
 
-### ⚡ Optimization Algorithms
-- **Quasi-Symmetry Optimization**: Minimize magnetic field asymmetry
-- **Quasi-Isodynamicity Optimization**: Optimize for isodynamic magnetic fields
-- **Magnetic Well Optimization**: Maximize magnetic well depth for stability
-- **Transport Optimization**: Minimize neoclassical transport
+### ⚡ Optimisation Algorithms
+- **Quasi-Symmetry Optimisation**: Minimize magnetic field asymmetry
+- **Quasi-Isodynamicity Optimisation**: Optimise for isodynamic magnetic fields
+- **Magnetic Well Optimisation**: Maximize magnetic well depth for stability
+- **Transport Optimisation**: Minimize neoclassical transport
 
 ### 🔄 Tokamak Comparison
 - **Performance Metrics**: Direct comparison of stellarator vs tokamak performance
@@ -23,11 +23,11 @@ A comprehensive Julia package for stellarator fusion reactor physics analysis, f
 - **Stability Analysis**: Comparison of stability properties and beta limits
 - **Confinement Scaling**: Analysis of confinement time scaling laws
 
-### 📊 3D Visualization
+### 📊 3D Visualisation
 - **Magnetic Field Lines**: Interactive 3D field line tracing
-- **Plasma Surfaces**: 3D visualization of magnetic surfaces
-- **Transport Profiles**: 2D and 3D transport coefficient visualization
-- **Optimization Results**: Real-time optimization progress visualization
+- **Plasma Surfaces**: 3D visualisation of magnetic surfaces
+- **Transport Profiles**: 2D and 3D transport coefficient visualisation
+- **Optimisation Results**: Real-time optimisation progress visualisation
 
 ## Installation
 
@@ -120,9 +120,9 @@ j_bs = bootstrap_current(transport, 0.5)
 E_r = radial_electric_field(transport, 0.5)
 ```
 
-#### Optimization
+#### Optimisation
 ```julia
-# Optimize for quasi-symmetry
+# Optimise for quasi-symmetry
 result, optimal_harmonics = optimize_quasi_symmetry(stellarator_bfield, 1000)
 
 # Multi-objective optimization
@@ -154,7 +154,7 @@ StellaratorPhysics/
 │   ├── StellaratorPhysics.jl      # Main module
 │   ├── MagneticField3D.jl         # 3D magnetic field calculations
 │   ├── NeoclassicalTransport.jl   # Transport modeling
-│   ├── StellaratorOptimization.jl # Optimization algorithms
+│   ├── StellaratorOptimization.jl # Optimisation algorithms
 │   ├── TokamakComparison.jl       # Tokamak comparison
 │   ├── Visualization3D.jl         # 3D visualization
 │   └── utils.jl                   # Utility functions
@@ -189,9 +189,9 @@ Neoclassical transport in stellarators differs from tokamaks due to:
 - **Magnetic field ripple**: Creates additional transport channels
 - **Quasi-symmetry**: Can reduce transport to tokamak-like levels
 
-### Optimization Objectives
+### Optimisation Objectives
 - **Quasi-Symmetry**: Minimize magnetic field asymmetry to reduce transport
-- **Quasi-Isodynamicity**: Optimize for isodynamic magnetic fields
+- **Quasi-Isodynamicity**: Optimise for isodynamic magnetic fields
 - **Magnetic Well**: Maximize magnetic well depth for stability
 - **Transport**: Minimize neoclassical transport coefficients
 
