@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quasi-Isodynamic Stellarator 3D Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { display: flex; flex-wrap: wrap; }
+        .plot-container { flex: 1; min-width: 400px; margin: 10px; }
+        .info { background: #f0f0f0; padding: 15px; margin: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Quasi-Isodynamic Stellarator 3D Visualization</h1>
+    
+    <div class="info">
+        <h3>Stellarator vs Tokamak</h3>
+        <p><strong>Stellarator:</strong> 3D helical magnetic field structure, quasi-isodynamic optimization, 
+        steady-state operation without plasma current</p>
+        <p><strong>Key Features:</strong> Helical winding, quasi-isodynamic magnetic surfaces, 
+        reduced transport, flexible optimization</p>
+    </div>
+    
+    <div class="container">
+        <div class="plot-container">
+            <div id="plot3d"></div>
+        </div>
+        <div class="plot-container">
+            <div id="plot2d"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Generate quasi-isodynamic stellarator data
+        function generateStellaratorData() {
+            const R0 = 1.0;
+            const a = 0.2;
+            const N = 5; // Field periods
+            const helical_amp = 0.15;
+            
+            const surfaces = [];
+            const s_values = [0.2, 0.4, 0.6, 0.8];
+            const colors = ['red', 'blue', 'green', 'orange'];
+            
+            s_values.forEach((s, i) => {
+                const x = [], y = [], z = [], B = [];
+                
+                for (let theta = 0; theta < 2 * Math.PI; theta += 0.1) {
+                    for (let phi = 0; phi < 2 * Math.PI; phi += 0.1) {
+                        // Stellarator geometry with helical modulation
+                        const r_base = s * a;
+                        const helical_mod = helical_amp * Math.sin(N * phi) * 0.1;
+                        const r = r_base * (1 + helical_mod);
+                        const R_shift = helical_amp * Math.cos(N * phi) * 0.05;
+                        
+                        const R = R0 + r * Math.cos(theta) + R_shift;
+                        const Z = r * Math.sin(theta);
+                        const X = R * Math.cos(phi);
+                        const Y = R * Math.sin(phi);
+                        
+                        // Magnetic field strength (quasi-isodynamic)
+                        const B_mag = 1.0 + helical_amp * Math.cos(N * phi) * 0.1;
+                        
+                        x.push(X);
+                        y.push(Y);
+                        z.push(Z);
+                        B.push(B_mag);
+                    }
+                }
+                
+                surfaces.push({
+                    x: x, y: y, z: z, B: B,
+                    type: 'scatter3d',
+                    mode: 'markers',
+                    marker: {
+                        size: 2,
+                        color: B,
+                        colorscale: 'Plasma',
+                        opacity: 0.7,
+                        showscale: false
+                    },
+                    name: 'Surface s=' + s.toString(),
+                    visible: i === 0 ? true : 'legendonly'
+                });
+            });
+            
+            return surfaces;
+        }
+        
+        // 3D Plot
+        const surfaces3d = generateStellaratorData();
+        const layout3d = {
+            title: 'Quasi-Isodynamic Stellarator<br>3D Magnetic Surfaces',
+            scene: {
+                xaxis: {title: 'X [m]'},
+                yaxis: {title: 'Y [m]'},
+                zaxis: {title: 'Z [m]'},
+                aspectmode: 'data',
+                camera: {eye: {x: 1.5, y: 1.5, z: 1.5}}
+            },
+            width: 600,
+            height: 500
+        };
+        
+        Plotly.newPlot('plot3d', surfaces3d, layout3d);
+        
+        // 2D Cross-section plot
+        const crossSectionData = [];
+        const phi_angles = [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI];
+        
+        phi_angles.forEach((phi, i) => {
+            const x = [], y = [];
+            const s_values = [0.2, 0.4, 0.6, 0.8];
+            
+            s_values.forEach(s => {
+                for (let theta = 0; theta < 2 * Math.PI; theta += 0.05) {
+                    const r_base = s * 0.2;
+                    const helical_mod = 0.15 * Math.sin(5 * phi) * 0.1;
+                    const r = r_base * (1 + helical_mod);
+                    const R_shift = 0.15 * Math.cos(5 * phi) * 0.05;
+                    
+                    const R = 1.0 + r * Math.cos(theta) + R_shift;
+                    const X = R * Math.cos(phi);
+                    const Y = R * Math.sin(phi);
+                    
+                    x.push(X);
+                    y.push(Y);
+                }
+            });
+            
+            crossSectionData.push({
+                x: x, y: y,
+                type: 'scatter',
+                mode: 'markers',
+                marker: {size: 1, opacity: 0.6},
+                name: 'φ = ' + (phi * 180 / Math.PI).toFixed(0) + '°',
+                visible: i < 3 ? true : 'legendonly'
+            });
+        });
+        
+        const layout2d = {
+            title: 'Stellarator Cross-Sections<br>Showing Helical Structure',
+            xaxis: {title: 'X [m]'},
+            yaxis: {title: 'Y [m]', scaleanchor: 'x', scaleratio: 1},
+            width: 600,
+            height: 500
+        };
+        
+        Plotly.newPlot('plot2d', crossSectionData, layout2d);
+    </script>
+</body>
+</html>

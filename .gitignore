@@ -1,0 +1,43 @@
+# Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+.DS_Store
+Manifest.toml
+
+# Data files (optional - uncomment if you don't want to include data)
+# *.dat
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Plot outputs (keep some, ignore others)
+# Uncomment if you want to ignore all plots
+# *.png
+# *.pdf
+# *.html

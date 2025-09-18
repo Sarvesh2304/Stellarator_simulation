@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>True Quasi-Isodynamic Stellarator 3D Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { display: flex; flex-wrap: wrap; }
+        .plot-container { flex: 1; min-width: 400px; margin: 10px; }
+        .info { background: #f0f0f0; padding: 15px; margin: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>True Quasi-Isodynamic Stellarator 3D Visualization</h1>
+    
+    <div class="info">
+        <h3>Quasi-Isodynamic Stellarator Features</h3>
+        <p><strong>Helical Structure:</strong> 5 field periods create the characteristic stellarator winding</p>
+        <p><strong>Quasi-Isodynamic Optimization:</strong> Magnetic field strength nearly constant along field lines</p>
+        <p><strong>3D Geometry:</strong> Complex helical surfaces that cannot be achieved in tokamaks</p>
+        <p><strong>Steady-State:</strong> No plasma current required for confinement</p>
+    </div>
+    
+    <div class="container">
+        <div class="plot-container">
+            <div id="plot3d"></div>
+        </div>
+        <div class="plot-container">
+            <div id="plot2d"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Generate true quasi-isodynamic stellarator data
+        function generateTrueStellaratorData() {
+            const R0 = 1.0;
+            const a = 0.2;
+            const N = 5; // Field periods
+            const mod_amp = 0.25; // Strong modulation
+            
+            const surfaces = [];
+            const s_values = [0.2, 0.4, 0.6, 0.8];
+            
+            s_values.forEach((s, i) => {
+                const x = [], y = [], z = [], winding = [];
+                
+                for (let theta = 0; theta < 2 * Math.PI; theta += 0.05) {
+                    for (let phi = 0; phi < 2 * Math.PI; phi += 0.05) {
+                        // True stellarator geometry with strong helical modulation
+                        const r_base = s * a;
+                        const helical_mod = mod_amp * Math.sin(N * phi) * 0.3;
+                        const r = r_base * (1 + helical_mod);
+                        const R_shift = mod_amp * Math.cos(N * phi) * 0.2;
+                        const Z_shift = mod_amp * Math.sin(N * phi) * 0.1;
+                        
+                        const R = R0 + r * Math.cos(theta) + R_shift;
+                        const Z = r * Math.sin(theta) + Z_shift;
+                        const X = R * Math.cos(phi);
+                        const Y = R * Math.sin(phi);
+                        
+                        // Helical winding parameter
+                        const winding_param = Math.sin(N * phi) * Math.cos(theta);
+                        
+                        x.push(X);
+                        y.push(Y);
+                        z.push(Z);
+                        winding.push(winding_param);
+                    }
+                }
+                
+                surfaces.push({
+                    x: x, y: y, z: z, winding: winding,
+                    type: 'scatter3d',
+                    mode: 'markers',
+                    marker: {
+                        size: 2,
+                        color: winding,
+                        colorscale: 'Viridis',
+                        opacity: 0.7,
+                        showscale: false
+                    },
+                    name: 'Surface s=' + s.toString(),
+                    visible: i === 0 ? true : 'legendonly'
+                });
+            });
+            
+            return surfaces;
+        }
+        
+        // 3D Plot
+        const surfaces3d = generateTrueStellaratorData();
+        const layout3d = {
+            title: 'True Quasi-Isodynamic Stellarator<br>3D Helical Structure',
+            scene: {
+                xaxis: {title: 'X [m]'},
+                yaxis: {title: 'Y [m]'},
+                zaxis: {title: 'Z [m]'},
+                aspectmode: 'data',
+                camera: {eye: {x: 2.0, y: 2.0, z: 2.0}}
+            },
+            width: 600,
+            height: 500
+        };
+        
+        Plotly.newPlot('plot3d', surfaces3d, layout3d);
+        
+        // 2D Cross-section plot showing helical structure
+        const crossSectionData = [];
+        const phi_angles = [0, Math.PI/6, Math.PI/3, Math.PI/2, 2*Math.PI/3, 5*Math.PI/6, Math.PI];
+        const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+        
+        phi_angles.forEach((phi, i) => {
+            const x = [], y = [];
+            const s_values = [0.2, 0.4, 0.6, 0.8];
+            
+            s_values.forEach(s => {
+                for (let theta = 0; theta < 2 * Math.PI; theta += 0.02) {
+                    const r_base = s * 0.2;
+                    const helical_mod = 0.25 * Math.sin(5 * phi) * 0.3;
+                    const r = r_base * (1 + helical_mod);
+                    const R_shift = 0.25 * Math.cos(5 * phi) * 0.2;
+                    const Z_shift = 0.25 * Math.sin(5 * phi) * 0.1;
+                    
+                    const R = 1.0 + r * Math.cos(theta) + R_shift;
+                    const Z = r * Math.sin(theta) + Z_shift;
+                    const X = R * Math.cos(phi);
+                    const Y = R * Math.sin(phi);
+                    
+                    x.push(X);
+                    y.push(Y);
+                }
+            });
+            
+            crossSectionData.push({
+                x: x, y: y,
+                type: 'scatter',
+                mode: 'markers',
+                marker: {size: 1, opacity: 0.6, color: colors[i]},
+                name: 'φ = ' + (phi * 180 / Math.PI).toFixed(0) + '°',
+                visible: i < 4 ? true : 'legendonly'
+            });
+        });
+        
+        const layout2d = {
+            title: 'Stellarator Cross-Sections<br>Showing Helical Winding Structure',
+            xaxis: {title: 'X [m]'},
+            yaxis: {title: 'Y [m]', scaleanchor: 'x', scaleratio: 1},
+            width: 600,
+            height: 500
+        };
+        
+        Plotly.newPlot('plot2d', crossSectionData, layout2d);
+    </script>
+</body>
+</html>

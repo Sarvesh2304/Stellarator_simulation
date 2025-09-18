@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Stellarator Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>3D Stellarator Magnetic Surfaces</h1>
+    <div id="plot"></div>
+    
+    <script>
+        // Surface data (simplified for demonstration)
+        const surfaces = [
+            {name: 'Surface s=0.2', color: 'red'},
+            {name: 'Surface s=0.4', color: 'blue'},
+            {name: 'Surface s=0.6', color: 'green'},
+            {name: 'Surface s=0.8', color: 'orange'}
+        ];
+        
+        const traces = [];
+        
+        // Generate toroidal surface points
+        surfaces.forEach((surface, i) => {
+            const s = 0.2 + i * 0.2;
+            const R0 = 1.0;
+            const a = 0.2;
+            
+            const x = [], y = [], z = [];
+            
+            for (let theta = 0; theta < 2 * Math.PI; theta += 0.1) {
+                for (let phi = 0; phi < 2 * Math.PI; phi += 0.1) {
+                    const r = s * a;
+                    const R = R0 + r * Math.cos(theta);
+                    const Z = r * Math.sin(theta);
+                    const X = R * Math.cos(phi);
+                    const Y = R * Math.sin(phi);
+                    
+                    x.push(X);
+                    y.push(Y);
+                    z.push(Z);
+                }
+            }
+            
+            traces.push({
+                x: x, y: y, z: z,
+                mode: 'markers',
+                type: 'scatter3d',
+                marker: {
+                    size: 2,
+                    color: surface.color,
+                    opacity: 0.6
+                },
+                name: surface.name
+            });
+        });
+        
+        const layout = {
+            title: '3D Stellarator Magnetic Surfaces',
+            scene: {
+                xaxis: {title: 'X [m]'},
+                yaxis: {title: 'Y [m]'},
+                zaxis: {title: 'Z [m]'},
+                aspectmode: 'data'
+            },
+            width: 800,
+            height: 600
+        };
+        
+        Plotly.newPlot('plot', traces, layout);
+    </script>
+</body>
+</html>
