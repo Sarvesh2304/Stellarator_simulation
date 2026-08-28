@@ -130,8 +130,9 @@ function calculate_transport_coefficients(transport::NeoclassicalTransport, s)
     energies = range(0.1 * energy_max, energy_max, length=n_energy)
     
     # Weight function for energy integration
-    weight_e = exp.(-energies / transport.T_e) .* sqrt(energies)
-    weight_i = exp.(-energies / transport.T_i) .* sqrt(energies)
+    energy_sqrt = sqrt.(energies)
+    weight_e = exp.(-energies / transport.T_e) .* energy_sqrt
+    weight_i = exp.(-energies / transport.T_i) .* energy_sqrt
     
     # Initialize integrated coefficients
     D_11_int = 0.0
