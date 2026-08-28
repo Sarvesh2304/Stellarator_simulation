@@ -4,6 +4,7 @@ Physical constants and utility functions for stellarator physics analysis
 
 # Physical constants
 const μ₀ = 4π * 1e-7  # Permeability of free space [H/m]
+const ε₀ = 8.8541878128e-12  # Vacuum permittivity [F/m]
 const e = 1.602176634e-19  # Elementary charge [C]
 const mₑ = 9.1093837015e-31  # Electron mass [kg]
 const mᵢ = 1.67262192369e-27  # Proton mass [kg]
@@ -81,24 +82,5 @@ end
 Calculate the Larmor radius for a particle in a magnetic field.
 """
 function larmor_radius(mass, temperature, B_mag)
-    return sqrt(2 * mass * temperature) / (e * B_mag)
-end
-
-"""
-    collision_frequency(n, T, Z)
-
-Calculate the collision frequency for plasma particles.
-"""
-function collision_frequency(n, T, Z)
-    # Simplified collision frequency formula
-    return 1.6e-19 * n * Z^2 * e^4 * log(Λ) / (4π * ε₀^2 * mₑ^2 * v_th^3)
-end
-
-"""
-    log_Λ(n, T)
-
-Calculate the Coulomb logarithm.
-"""
-function log_Λ(n, T)
-    return 23 - log(sqrt(n) * T^(-3/2))
+    return sqrt(2 * mass * e * temperature) / (e * B_mag)
 end

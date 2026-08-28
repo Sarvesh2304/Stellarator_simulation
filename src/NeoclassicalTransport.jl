@@ -15,6 +15,7 @@ using SpecialFunctions
 export NeoclassicalTransport, TransportCoefficients
 export calculate_transport_coefficients, bootstrap_current
 export radial_electric_field, neoclassical_energy_confinement
+export stellarator_transport_regime
 
 """
     struct TransportCoefficients
@@ -47,31 +48,34 @@ mutable struct NeoclassicalTransport
     
     function NeoclassicalTransport(bfield::MagneticField3D, T_e, T_i, n_e, n_i, Z_eff=1.0)
         # Calculate collision frequencies
-        ν_ei = collision_frequency(n_e, T_e, Z_eff)
-        ν_ii = collision_frequency(n_i, T_i, 1.0)
+        ν_ei = collision_frequency(n_e, T_e, Z_eff, mₑ)
+        ν_ii = collision_frequency(n_i, T_i, 1.0, mᵢ)
         
         new(bfield, T_e, T_i, n_e, n_i, Z_eff, ν_ei, ν_ii)
     end
 end
 
 """
-    collision_frequency(n, T, Z)
+    collision_frequency(n, T, Z, mass)
 
-Calculate collision frequency for plasma particles.
+Calculate a Coulomb collision frequency for particles with `mass` [kg].
+`T` is in eV and `n` is in m^-3.
 """
-function collision_frequency(n, T, Z)
-    # Coulomb collision frequency
+function collision_frequency(n, T, Z, mass=mₑ)
     Λ = log_Λ(n, T)
-    return 4π * n * Z^2 * e^4 * Λ / (3 * mₑ^2 * v_th^3 * (4π * ε₀)^2)
+    v = sqrt(2 * e * T / mass)
+    return 4π * n * Z^2 * e^4 * Λ / (3 * mass^2 * v^3 * (4π * ε₀)^2)
 end
 
 """
     log_Λ(n, T)
 
-Calculate the Coulomb logarithm.
+Calculate the Coulomb logarithm using the common cgs-form expression,
+after converting the SI density to cm^-3. `T` is in eV.
 """
 function log_Λ(n, T)
-    return 23 - log(sqrt(n) * T^(-3/2))
+    n_cm3 = n / 1e6
+    return 23 - log(sqrt(n_cm3) * T^(-3/2))
 end
 
 """
@@ -106,7 +110,7 @@ function monoenergetic_coefficients(transport::NeoclassicalTransport, s, energy)
     D_22 = ρ^2 * ν_eff * (1 + 0.8 * s^2)
     
     # Effective thermal diffusivity
-    χ_eff = D_22 / transport.n_i
+    χ_eff = D_22
     
     # Effective viscosity
     ν_eff_visc = ρ^2 * ν_eff * 0.1
@@ -222,7 +226,7 @@ end
 
 Determine the dominant transport regime at a given radius.
 """
-function stellarator_transport_regime(transport::NeoclassicalTransport, s)
+function stellarator_transport_regime(transport::NeoclassicalTransport, s; q=1.0)
     # Calculate relevant parameters
     R = transport.bfield.R₀ + s * transport.bfield.a
     φ = 0.0
@@ -230,16 +234,13 @@ function stellarator_transport_regime(transport::NeoclassicalTransport, s)
     B_R, B_φ, B_Z = calculate_magnetic_field(transport.bfield, R, φ, Z)
     B_mag = sqrt(B_R^2 + B_φ^2 + B_Z^2)
     
-    # Calculate Larmor radius
-    ρ_i = larmor_radius(mᵢ, transport.T_i, B_mag)
-    
-    # Calculate collision frequency
-    ν_ii = transport.ν_ii
-    
-    # Calculate transport regime
-    if ν_ii * ρ_i / v_th < 0.1
+    # ν* normalises collisions to the ion transit frequency.
+    v_th_i = sqrt(2 * e * transport.T_i / mᵢ)
+    ν_star = transport.ν_ii * R * q / v_th_i
+
+    if ν_star < 0.1
         return "collisionless"
-    elseif ν_ii * ρ_i / v_th < 1.0
+    elseif ν_star < 1.0
         return "intermediate"
     else
         return "collisional"

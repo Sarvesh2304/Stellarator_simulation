@@ -3,7 +3,7 @@ Basic test script for StellaratorPhysics package
 """
 
 using Pkg
-Pkg.activate("..")
+Pkg.activate(joinpath(@__DIR__, ".."))
 
 using StellaratorPhysics
 using Test
